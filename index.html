@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeHire — Find Every Trade. Be Found by Every Homeowner.</title>
+  <meta name="description" content="Ontario's trades, all in one place. Get your free professional profile before we open to homeowners." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --orange: #E8650A;
+      --orange-light: #FF7A1A;
+      --orange-glow: rgba(232,101,10,0.15);
+      --black: #000000;
+      --card-bg: rgba(28,28,30,0.7);
+      --border: rgba(255,255,255,0.1);
+      --text-main: #FFFFFF;
+      --text-dim: #A1A1A6;
+      --radius-lg: 22px;
+      --radius-sm: 12px;
+      --success: #22C55E;
+      --error: #EF4444;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--black);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: -1;
+      background: radial-gradient(circle at 50% -20%, #2c1405 0%, #000 60%);
+    }
+    .bg-canvas::after {
+      content: ""; position: absolute; inset: -200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.04; pointer-events: none;
+    }
+
+    h1, h2, h3, .logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 24px; text-align: center;
+    }
+
+    .logo {
+      font-size: clamp(64px, 15vw, 120px);
+      font-weight: 900; line-height: 0.85; margin-bottom: 20px;
+      background: linear-gradient(to bottom, #fff 50%, #888);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+    .logo span.hire { -webkit-text-fill-color: var(--orange); background: none; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; background: var(--orange-glow);
+      border: 1px solid rgba(232,101,10,0.4); border-radius: 100px;
+      font-size: 13px; font-weight: 700; color: var(--orange-light);
+      margin-bottom: 28px; backdrop-filter: blur(10px);
+      animation: fadeUp 0.8s 0s ease both;
+    }
+    .badge::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--orange); animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    .hero-headline {
+      font-size: clamp(32px, 7vw, 68px); max-width: 900px;
+      margin-bottom: 20px; font-weight: 800; line-height: 1;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+    .hero-headline em { font-style: normal; color: var(--orange); display: block; }
+
+    .hero-sub {
+      font-size: clamp(16px, 2.2vw, 20px); color: var(--text-dim);
+      max-width: 580px; margin: 0 auto 40px; font-weight: 300; line-height: 1.7;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .stats-bar {
+      display: flex; gap: 56px; margin-bottom: 44px;
+      flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.8s 0.4s ease both;
+    }
+    .stat-item { text-align: center; }
+    .stat-val { font-size: 44px; font-weight: 900; font-family: 'Barlow Condensed'; line-height: 1; }
+    .stat-desc { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 18px 38px; background: var(--orange); color: white;
+      text-decoration: none; border-radius: var(--radius-sm);
+      font-weight: 600; font-size: 17px;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(232,101,10,0.3);
+      border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+      animation: fadeUp 0.8s 0.5s ease both;
+    }
+    .btn-primary:hover { transform: translateY(-3px); background: var(--orange-light); box-shadow: 0 18px 36px rgba(232,101,10,0.45); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* MIDDLE */
+    .middle { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+
+    .bridge { text-align: center; max-width: 700px; margin: 0 auto 64px; }
+    .bridge h2 { font-size: clamp(26px, 4vw, 44px); font-weight: 800; margin-bottom: 16px; line-height: 1.05; }
+    .bridge h2 span { color: var(--orange); }
+    .bridge p { color: var(--text-dim); font-size: 17px; line-height: 1.7; }
+
+    /* VS TABLE */
+    .vs-wrap {
+      background: rgba(255,255,255,.03); border-radius: 20px;
+      padding: 32px; overflow-x: auto; border: 1px solid var(--border); margin-bottom: 48px;
+    }
+    .vs-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+    .vs-table th {
+      text-align: left; padding: 16px 20px; color: var(--text-dim);
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .08em; border-bottom: 1px solid var(--border); font-family: 'Inter', sans-serif;
+    }
+    .vs-table th:last-child { color: var(--orange); }
+    .vs-table td { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 14px; color: var(--text-dim); }
+    .vs-table tr:last-child td { border: none; }
+    .vs-table td:first-child { color: rgba(255,255,255,.45); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    .vs-table td.good { color: var(--orange); font-weight: 600; }
+    .check { color: var(--success); }
+    .cross { color: rgba(255,255,255,.18); }
+
+    /* TIERS */
+    .tier-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; border-radius: 16px; overflow: hidden; margin-bottom: 16px;
+    }
+    .tier-card { background: rgba(22,22,24,.9); padding: 32px 28px; position: relative; }
+    .tier-card.featured { border: 1px solid rgba(232,101,10,.45); }
+    .tier-card.featured::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: linear-gradient(90deg,var(--orange),var(--orange-light));
+    }
+    .tier-badge {
+      display: inline-block; background: var(--orange-glow);
+      border: 1px solid rgba(232,101,10,.4); border-radius: 100px;
+      padding: 3px 12px; font-size: 11px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--orange); margin-bottom: 14px;
+    }
+    .tier-name { font-family: 'Barlow Condensed',sans-serif; font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+    .tier-price { font-family: 'Barlow Condensed',sans-serif; font-weight: 900; font-size: 40px; line-height: 1; margin-bottom: 4px; }
+    .tier-price span { font-size: 16px; font-weight: 400; color: var(--text-dim); }
+    .tier-note { font-size: 12px; color: var(--text-dim); margin-bottom: 24px; }
+    .tier-features { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+    .tier-features .on { color: rgba(255,255,255,.7); }
+    .tier-features .on.hi { color: var(--orange); font-weight: 500; }
+    .tier-features .off { color: rgba(255,255,255,.18); }
+    .tier-disclaimer {
+      font-size: 11px; color: rgba(255,255,255,.22); line-height: 1.6;
+      padding: 14px 16px; background: rgba(255,255,255,.02);
+      border-radius: 8px; border: 1px solid rgba(255,255,255,.05);
+    }
+
+    /* FORM OUTER */
+    .form-outer { max-width: 1100px; margin: 0 auto; padding: 40px 24px 100px; }
+    .form-header { text-align: center; margin-bottom: 48px; }
+    .form-header h2 { font-size: clamp(28px,4vw,48px); font-weight: 800; margin-bottom: 10px; }
+    .form-header p { color: var(--text-dim); font-size: 16px; max-width: 460px; margin: 0 auto; line-height: 1.6; }
+
+    /* PROGRESS BAR */
+    .progress-wrap { max-width: 480px; margin: 0 auto 48px; }
+    .progress-steps { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: rgba(255,255,255,.3);
+      transition: all 0.3s ease; background: transparent; font-family: 'Inter', sans-serif;
+    }
+    .step-dot.active { border-color: var(--orange); color: var(--orange); }
+    .step-dot.done { border-color: var(--success); background: var(--success); color: white; }
+    .step-label { font-size: 11px; color: rgba(255,255,255,.3); text-transform: uppercase; letter-spacing: .06em; transition: color 0.3s; }
+    .step-label.active { color: var(--orange); }
+    .step-label.done { color: var(--success); }
+    .progress-line { flex: 1; height: 1px; background: rgba(255,255,255,.1); margin: 0 8px; margin-bottom: 22px; position: relative; overflow: hidden; }
+    .progress-line-fill { position: absolute; inset: 0; background: var(--orange); transform: scaleX(0); transform-origin: left; transition: transform 0.5s ease; }
+
+    /* FORM LAYOUT */
+    .form-layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; }
+    .form-card {
+      background: #0D0D0E; padding: 48px 40px;
+      border-radius: 24px; border: 1px solid var(--border); position: relative;
+    }
+    .form-card::before {
+      content: ""; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      width: 40%; height: 1px; background: linear-gradient(90deg,transparent,var(--orange),transparent);
+    }
+
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+
+    .step-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .step-subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 32px; line-height: 1.5; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    label {
+      font-size: 11px; font-weight: 600; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: .1em; display: block; margin-bottom: 7px;
+    }
+    label .req { color: var(--orange); }
+    label .opt { font-size: 10px; color: rgba(255,255,255,.22); text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 5px; }
+
+    input, select, textarea {
+      width: 100%; background: #18181B; border: 1px solid var(--border);
+      padding: 14px 16px; border-radius: 10px; color: white;
+      font-family: 'Inter', sans-serif; font-size: 15px;
+      transition: border-color 0.25s, background 0.25s; -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--orange); background: #1c1c20; }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,.18); }
+    select option { background: #18181B; color: white; }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    /* BN */
+    .bn-wrapper { position: relative; }
+    .bn-spinner {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.1);
+      border-top-color: var(--orange); border-radius: 50%;
+      animation: spin 0.9s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+    .bn-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
+    .bn-result { font-size: 12px; margin-top: 7px; min-height: 16px; line-height: 1.4; }
+    .bn-result.success { color: var(--success); }
+    .bn-result.info { color: var(--text-dim); }
+    .bn-result.warn { color: #F59E0B; }
+
+    /* UPLOAD */
+    .upload-zone {
+      border: 2px dashed rgba(255,255,255,.12); border-radius: 12px;
+      padding: 36px 24px; text-align: center; cursor: pointer;
+      transition: all 0.25s ease; position: relative; background: #18181B;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--orange); background: rgba(232,101,10,.05); }
+    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+    .upload-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .upload-sub { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .upload-accepted { font-size: 11px; color: rgba(255,255,255,.25); margin-top: 10px; }
+    .upload-progress { display: none; margin-top: 16px; }
+    .upload-progress-bar { height: 3px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+    .upload-progress-fill { height: 100%; background: var(--orange); width: 0%; transition: width 0.3s ease; }
+    .upload-filename { font-size: 13px; color: var(--text-dim); }
+    .upload-success { display: none; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.25); border-radius: 10px; padding: 14px 16px; font-size: 14px; color: var(--success); margin-top: 12px; }
+    .skip-link { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: rgba(255,255,255,.3); cursor: pointer; transition: color 0.2s; text-decoration: underline; text-underline-offset: 3px; }
+    .skip-link:hover { color: rgba(255,255,255,.6); }
+
+    /* NAV BUTTONS */
+    .step-nav { display: flex; gap: 12px; margin-top: 32px; }
+    .btn-back {
+      flex: 0; padding: 14px 24px; background: transparent; color: var(--text-dim);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease; white-space: nowrap;
+    }
+    .btn-back:hover { border-color: rgba(255,255,255,.3); color: white; }
+    .btn-next { flex: 1; }
+
+    .form-error {
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: 12px 16px; font-size: 13px;
+      color: #FCA5A5; margin-bottom: 18px; display: none;
+    }
+    .form-legal { margin-top: 14px; font-size: 11px; color: rgba(255,255,255,.22); text-align: center; line-height: 1.6; }
+
+    /* PROFILE PREVIEW */
+    .preview-card {
+      background: #111113; border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px; position: sticky; top: 32px;
+    }
+    .preview-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 20px; }
+    .preview-avatar {
+      width: 64px; height: 64px; border-radius: 14px;
+      background: rgba(232,101,10,.15); border: 2px solid rgba(232,101,10,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 16px;
+      font-family: 'Barlow Condensed',sans-serif; font-weight: 900; color: var(--orange);
+    }
+    .preview-name { font-family: 'Barlow Condensed',sans-serif; font-size: 22px; font-weight: 800; line-height: 1.1; margin-bottom: 4px; color: white; }
+    .preview-name.empty { color: rgba(255,255,255,.2); font-size: 15px; font-family: 'Inter',sans-serif; font-weight: 400; text-transform: none; }
+    .preview-category { font-size: 13px; color: var(--orange); font-weight: 500; margin-bottom: 16px; }
+    .preview-divider { height: 1px; background: rgba(255,255,255,.07); margin: 16px 0; }
+    .preview-bio { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+    .preview-bio.empty { color: rgba(255,255,255,.15); font-style: italic; }
+    .preview-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .preview-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-pro { background: rgba(232,101,10,.15); color: var(--orange); border: 1px solid rgba(232,101,10,.3); }
+    .badge-verified { background: rgba(34,197,94,.1); color: var(--success); border: 1px solid rgba(34,197,94,.25); display: none; }
+    .preview-contact { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .preview-contact-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,.35); }
+
+    /* SUCCESS */
+    .success-screen { display: none; text-align: center; padding: 60px 24px; max-width: 600px; margin: 0 auto; }
+    .success-icon { font-size: 72px; margin-bottom: 24px; animation: bounceIn 0.6s ease; display: block; }
+    @keyframes bounceIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .success-title { font-size: clamp(28px,5vw,44px); font-weight: 800; margin-bottom: 12px; }
+    .success-title span { color: var(--orange); }
+    .success-body { color: var(--text-dim); font-size: 16px; line-height: 1.7; }
+
+    /* FOOTER */
+    footer { padding: 60px 24px; text-align: center; border-top: 1px solid var(--border); }
+    footer p { color: var(--text-dim); font-size: 13px; margin-top: 8px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .form-layout { grid-template-columns: 1fr; }
+      .preview-card { display: none; }
+      .tier-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .form-card { padding: 32px 20px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .stats-bar { gap: 32px; }
+      .step-label { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-canvas"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge">Invite-Only Early Access — 3 Months Pro Free</div>
+    <div class="logo">TRADE<span class="hire">HIRE</span></div>
+    <h1 class="hero-headline">
+      Find Every Trade.
+      <em>Be Found by Every Homeowner.</em>
+    </h1>
+    <p class="hero-sub">Ontario's professional directory for every trade. We're launching invite-only — request your invitation and get 3 months of Pro free when we go live.</p>
+    <p style="font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:32px;">Launching Spring 2026</p>
+    <div class="stats-bar">
+      <div class="stat-item"><div class="stat-val">40+</div><div class="stat-desc">Trade Categories</div></div>
+      <div class="stat-item"><div class="stat-val">$0</div><div class="stat-desc">To Join</div></div>
+      <div class="stat-item"><div class="stat-val">100%</div><div class="stat-desc">Ontario</div></div>
+    </div>
+    <a href="#register" class="btn-primary">
+      Request an Invitation
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </section>
+
+  <!-- MIDDLE -->
+  <div class="middle">
+
+    <div class="bridge">
+      <h2>The old way hides you.<br><span>TradeHire puts you on the map.</span></h2>
+      <p>Existing platforms show homeowners 3 sponsored results and charge you $200/month for the privilege. TradeHire is a full directory — every trade visible, every homeowner able to find and contact you directly.</p>
+    </div>
+
+    <div class="vs-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>HomeStars / Thumbtack</th>
+            <th>TradeHire</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Monthly Cost</td><td>$150–$300+</td><td class="good">$0–$12.99</td></tr>
+          <tr><td>Search Visibility</td><td><span class="cross">✗</span> Top 3 sponsored only</td><td class="good"><span class="check">✓</span> All profiles searchable*</td></tr>
+          <tr><td>Direct Messaging</td><td><span class="cross">✗</span></td><td class="good"><span class="check">✓</span> Pro tier</td></tr>
+          <tr><td>Quote Management</td><td><span class="cross">✗</span></td><td class="good"><span class="check">✓</span> Pro tier</td></tr>
+          <tr><td>Portfolio Posts</td><td><span class="cross">✗</span></td><td class="good"><span class="check">✓</span> Pro tier</td></tr>
+          <tr><td>Job Board</td><td><span class="cross">✗</span></td><td class="good"><span class="check">✓</span> Pro tier</td></tr>
+          <tr><td>You Own Your Profile</td><td><span class="cross">✗</span></td><td class="good"><span class="check">✓</span> Always</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-name">Free — Always</div>
+        <div class="tier-price">$0<span>/mo</span></div>
+        <div class="tier-note">No expiry. No credit card ever.</div>
+        <div class="tier-features">
+          <div class="on">✓ &nbsp;Searchable in your trade category</div>
+          <div class="on">✓ &nbsp;Appears in local search results</div>
+          <div class="on">✓ &nbsp;Phone &amp; email visible to homeowners</div>
+          <div class="on">✓ &nbsp;Logo &amp; business name displayed</div>
+          <div class="off">— &nbsp;Listed below Pro profiles</div>
+          <div class="off">— &nbsp;In-app messaging</div>
+          <div class="off">— &nbsp;Quote management</div>
+          <div class="off">— &nbsp;Portfolio posts</div>
+          <div class="off">— &nbsp;Job board</div>
+        </div>
+      </div>
+      <div class="tier-card featured">
+        <div class="tier-badge">Pre-Launch: 3 Months Free</div>
+        <div class="tier-name">Pro</div>
+        <div class="tier-price">$12.99<span>/mo</span></div>
+        <div class="tier-note">After your free 3 months. Cancel anytime.</div>
+        <div class="tier-features">
+          <div class="on">✓ &nbsp;Everything in Free</div>
+          <div class="on hi">✓ &nbsp;Boosted in search results</div>
+          <div class="on hi">✓ &nbsp;In-app messaging</div>
+          <div class="on hi">✓ &nbsp;Full quote management</div>
+          <div class="on hi">✓ &nbsp;Portfolio posts &amp; work feed</div>
+          <div class="on hi">✓ &nbsp;Job board access</div>
+          <div class="on hi">✓ &nbsp;Verified badge eligibility</div>
+          <div class="on hi">✓ &nbsp;Full bio &amp; service area</div>
+        </div>
+      </div>
+    </div>
+    <p class="tier-disclaimer" style="margin-top:16px;">* Free profiles appear in search results when homeowners search your trade category in your service area. Pro profiles are listed above free profiles. In-app messaging, quote management, portfolio posts, and job board access require a Pro subscription. Pre-launch registrants receive 3 months of Pro at launch — no credit card required. After 3 months, Pro is $12.99/month. Downgrade to free anytime.</p>
+
+  </div>
+
+  <!-- MULTI-STEP FORM -->
+  <div class="form-outer" id="register">
+
+    <div class="form-header">
+      <h2>Request Your Invitation.</h2>
+      <p>TradeHire launches invite-only in Spring 2026. Apply now and we'll review your business for early access — approved trades get 3 months of Pro free at launch.</p>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-steps">
+        <div class="progress-step">
+          <div class="step-dot active" id="dot1">1</div>
+          <div class="step-label active" id="lbl1">Your Business</div>
+        </div>
+        <div class="progress-line"><div class="progress-line-fill" id="line1"></div></div>
+        <div class="progress-step">
+          <div class="step-dot" id="dot2">2</div>
+          <div class="step-label" id="lbl2">Your Services</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-layout" style="grid-template-columns: 1fr;">
+
+      <!-- FORM CARD -->
+      <div class="form-card">
+        <div class="form-error" id="formError"></div>
+
+        <!-- STEP 1 -->
+        <div class="form-step active" id="step1">
+          <div class="step-title">Your Business</div>
+          <div class="step-subtitle">Tell us about your business. We review every application before sending an invitation.</div>
+          <div class="form-group">
+            <label for="businessName">Business Name <span class="req">*</span></label>
+            <input type="text" id="businessName" placeholder="Your registered business name" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="you@company.com" />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone <span class="req">*</span></label>
+              <input type="tel" id="phone" placeholder="(905) 555-0100" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="category">Trade Category <span class="req">*</span></label>
+            <select id="category">
+              <option value="" disabled selected>Select your primary trade</option>
+              <option>Architectural and Design Services</option>
+              <option>Arborist Services</option>
+              <option>General Contractors</option>
+              <option>Building Materials Suppliers</option>
+              <option>Demolition Services</option>
+              <option>Waste Disposal / Bin Rentals</option>
+              <option>Sanitation Services</option>
+              <option>Site Security and Fencing</option>
+              <option>Engineering Services</option>
+              <option>Excavation Services</option>
+              <option>Surveyor</option>
+              <option>Concrete and Forming</option>
+              <option>Waterproofing</option>
+              <option>Plumbing Contractors</option>
+              <option>Electrical Contractors</option>
+              <option>HVAC Contractors</option>
+              <option>Framing Carpenters</option>
+              <option>Roofing Contractors</option>
+              <option>Windows and Doors</option>
+              <option>Masonry Contractors</option>
+              <option>Exterior Cladding</option>
+              <option>Decking and Exteriors Contractors</option>
+              <option>Insulation and Vapour Barrier</option>
+              <option>Drywall Services</option>
+              <option>Kitchen Suppliers</option>
+              <option>Tile Installers</option>
+              <option>Flooring Contractors</option>
+              <option>Finish Carpenters</option>
+              <option>Painting Contractors</option>
+              <option>Staircases and Millwork</option>
+              <option>Glass and Countertops</option>
+              <option>Welding and Steel Fabrication</option>
+              <option>Pools and Landscaping</option>
+              <option>Maintenance</option>
+              <option>Cleaning Services</option>
+              <option>Snow Removal</option>
+              <option>Equipment and Machine Rentals</option>
+              <option>Crane Services</option>
+              <option>Elevators and Accessibility Services</option>
+              <option>Machine Repair</option>
+            </select>
+          </div>
+          <div class="step-nav">
+            <button class="btn-primary btn-next" onclick="goToStep(2)">
+              Continue — Step 2 of 2
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="form-step" id="step2">
+          <div class="step-title">Your Services</div>
+          <div class="step-subtitle">Tell us what you do. This becomes your profile overview — you can edit it anytime in the app.</div>
+          <div class="form-group">
+            <label for="bio">About Your Business <span class="opt">(optional)</span></label>
+            <textarea id="bio" placeholder="Describe your services, specializations, and service area. What makes your business stand out?" maxlength="500"></textarea>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="goToStep(1)">← Back</button>
+            <button class="btn-primary btn-next" id="submitBtn" onclick="submitForm()">
+              Submit My Application →
+            </button>
+          </div>
+          <p class="form-legal">
+            No credit card. Invitations are reviewed and sent before launch.<br>
+            Approved trades receive 3 months of Pro free. After 3 months, Pro is $12.99/month — cancel anytime.
+          </p>
+        </div>
+
+      </div>
+
+
+
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="successScreen">
+      <span class="success-icon">🔥</span>
+      <h2 class="success-title">Application received, <span id="successName"></span>.</h2>
+      <p class="success-body">We'll review your business and send your invitation before we go live in Spring 2026. Approved trades get 3 months of Pro free from day one.</p>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo" style="font-size:28px;margin-bottom:10px;">TRADE<span class="hire">HIRE</span></div>
+    <p>© 2026 Arroware Industries. Built for Ontario Trades 🍁</p>
+    <p style="margin-top:4px;opacity:.35;font-size:11px;">tradehireapp.com</p>
+  </footer>
+
+  <script>
+    const SUPABASE_URL      = 'https://sjwbjgpmrajtrguzaeyk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqd2JqZ3BtcmFqdHJndXphZXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzODUxNDIsImV4cCI6MjA3Nzk2MTE0Mn0.NIh6S3iloKCk4zBIkP8A9d9uMye1npIzWNqU3GOZ7rE';
+    const TABLE_NAME        = 'tradehire_preregistrations';
+
+    function getSupabase() {
+      return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    let currentStep = 1;
+
+    function goToStep(step) {
+      if (step > currentStep && !validateStep(currentStep)) return;
+      document.getElementById('step' + currentStep).classList.remove('active');
+      currentStep = step;
+      document.getElementById('step' + currentStep).classList.add('active');
+      document.getElementById('formError').style.display = 'none';
+      updateProgress();
+      document.getElementById('register').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function validateStep(step) {
+      if (step === 1) {
+        if (!document.getElementById('businessName').value.trim()) return showError('Please enter your business name.');
+        if (!document.getElementById('email').value.includes('@'))  return showError('Please enter a valid email address.');
+        if (!document.getElementById('phone').value.trim())         return showError('Please enter your phone number.');
+        if (!document.getElementById('category').value)             return showError('Please select your trade category.');
+      }
+      return true;
+    }
+
+    function showError(msg) {
+      const err = document.getElementById('formError');
+      err.textContent = msg;
+      err.style.display = 'block';
+      err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return false;
+    }
+
+    function updateProgress() {
+      [1, 2].forEach(function(i) {
+        var dot = document.getElementById('dot' + i);
+        var lbl = document.getElementById('lbl' + i);
+        dot.classList.remove('active', 'done');
+        lbl.classList.remove('active', 'done');
+        if (i < currentStep) {
+          dot.classList.add('done'); dot.textContent = '✓'; lbl.classList.add('done');
+        } else if (i === currentStep) {
+          dot.classList.add('active'); dot.textContent = i; lbl.classList.add('active');
+        } else {
+          dot.textContent = i;
+        }
+      });
+      document.getElementById('line1').style.transform = currentStep >= 2 ? 'scaleX(1)' : 'scaleX(0)';
+    }
+
+    // PHONE FORMAT
+    document.getElementById('phone').addEventListener('input', function(e) {
+      var x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+
+
+    // FORM SUBMIT
+    async function submitForm() {
+      var submitBtn = document.getElementById('submitBtn');
+      submitBtn.textContent = 'Submitting...';
+      submitBtn.disabled = true;
+
+      var name     = document.getElementById('businessName').value.trim();
+      var email    = document.getElementById('email').value.trim();
+      var phone    = document.getElementById('phone').value.trim();
+      var category = document.getElementById('category').value;
+      var bio      = document.getElementById('bio').value.trim();
+
+      try {
+        var result = await getSupabase().from(TABLE_NAME).insert({
+          business_name:         name,
+          email:                 email.toLowerCase(),
+          phone:                 phone,
+          trade_category:        category,
+          bio:                   bio || null,
+          account_status:        'pending_review',
+          pre_registered:        true,
+          first_login_completed: false,
+          registered_at:         new Date().toISOString(),
+          source:                'tradehireapp.com'
+        });
+
+        if (result.error) {
+          if (result.error.code === '23505') return showError('This email is already registered. Check your inbox for your confirmation.');
+          throw result.error;
+        }
+
+        document.querySelector('.form-layout').style.display = 'none';
+        document.querySelector('.progress-wrap').style.display = 'none';
+        document.querySelector('.form-header').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'block';
+        document.getElementById('successName').textContent = name;
+        document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+
+      } catch(err) {
+        console.error(err);
+        showError('Something went wrong. Please try again or email hello@tradehireapp.com');
+        submitBtn.textContent = 'Submit My Application →';
+        submitBtn.disabled = false;
+      }
+    }
+
+
+    // SMOOTH SCROLL
+    document.querySelector('a[href="#register"]').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+
+</body>
+</html>
