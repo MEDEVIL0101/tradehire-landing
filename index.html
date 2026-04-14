@@ -88,10 +88,14 @@
       height: 36px;
       border-radius: 9px;
     }
-    .nav-logo img.wordmark {
-      height: 22px;
-      filter: brightness(0) invert(1);
+    .nav-wordmark {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1;
     }
+    .nav-wordmark .trade { color: rgba(255,255,255,.95); }
+    .nav-wordmark .hire  { color: var(--green); }
     .nav-actions {
       display: flex;
       align-items: center;
@@ -230,12 +234,19 @@
       50%       { box-shadow: 0 0 0 6px rgba(67,198,121,.1); }
     }
     .hero-logo {
-      height: 120px;
-      filter: brightness(0) invert(1);
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0;
+      font-size: clamp(64px, 10vw, 108px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
       margin: 0 auto 20px;
     }
-    @media (max-width: 768px) { .hero-logo { height: 90px; } }
-    @media (max-width: 480px) { .hero-logo { height: 68px; } }
+    .hero-logo .trade { color: #fff; }
+    .hero-logo .hire  { color: var(--green); }
+    @media (max-width: 480px) { .hero-logo { font-size: 56px; } }
     .hero h1 {
       font-size: clamp(38px, 6vw, 66px);
       font-weight: 900;
@@ -700,27 +711,22 @@
     }
     .trade-pill {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
       background: var(--white);
       border-radius: var(--r);
-      padding: 20px 12px;
+      padding: 14px 16px;
       box-shadow: var(--shadow-sm);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text);
       text-align: center;
-      transition: transform .2s var(--ease), box-shadow .2s;
+      transition: transform .2s var(--ease), box-shadow .2s, color .2s;
     }
     .trade-pill:hover {
       transform: translateY(-3px);
       box-shadow: var(--shadow);
-    }
-    .trade-pill img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
+      color: var(--blue);
     }
     .trades-more {
       text-align: center;
@@ -902,6 +908,14 @@
       grid-template-columns: 2fr 1fr 1fr 1fr;
       gap: 48px;
     }
+    .footer-wordmark {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+    .footer-wordmark .trade { color: rgba(255,255,255,.9); }
+    .footer-wordmark .hire  { color: var(--green); }
     .footer-brand img {
       height: 22px;
       filter: brightness(0) invert(1);
@@ -978,8 +992,9 @@
       .nav { padding: 0 20px; }
       .nav-link { display: none; }
       .hero { padding: 100px 20px 72px; }
-      .hero-form { flex-direction: column; }
-      .hero-form input { width: 100%; }
+      .hero-form { flex-direction: column; max-width: 100%; }
+      .hero-form input,
+      .hero-form .btn { width: 100%; height: 56px; font-size: 16px; }
       section { padding: 60px 20px; }
       .trust-bar { padding: 16px 20px; }
       .trust-item { padding: 8px 16px; font-size: 12px; }
@@ -1003,9 +1018,7 @@
     <img class="icon"
          src="assets/app-icon-180.png"
          alt="TradeHire" />
-    <img class="wordmark"
-         src="assets/tradehire-header-logo.png"
-         alt="TradeHire" />
+    <span class="nav-wordmark"><span class="trade">TRADE</span><span class="hire">HIRE</span></span>
   </a>
   <div class="nav-actions">
     <a class="nav-link" href="#how-it-works">How it works</a>
@@ -1029,9 +1042,9 @@
       Now accepting early registrations
     </div>
 
-    <img class="hero-logo fade-in-up delay-2"
-         src="assets/tradehire-header-logo.png"
-         alt="TradeHire" />
+    <div class="hero-logo fade-in-up delay-2">
+      <span class="trade">TRADE</span><span class="hire">HIRE</span>
+    </div>
 
     <h1 class="fade-in-up delay-2">
       Find the right trades,<br /><em>every time.</em>
@@ -1317,46 +1330,16 @@
     </div>
 
     <div class="trades-grid">
-      <div class="trade-pill">
-        <img src="assets/icons/excavation.png" alt="Excavation" />
-        Excavation
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/masonry.png" alt="Masonry" />
-        Masonry
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/welding.png" alt="Welding" />
-        Welding
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/concrete.png" alt="Concrete" />
-        Concrete
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/general.png" alt="General Contractors" />
-        General Contracting
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/handyman.png" alt="Handyman" />
-        Handyman
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/siding.png" alt="Siding" />
-        Siding
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/cleaning.png" alt="Cleaning" />
-        Cleaning
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/crane.png" alt="Crane Operation" />
-        Crane Operation
-      </div>
-      <div class="trade-pill">
-        <img src="assets/icons/windows.png" alt="Windows" />
-        Windows
-      </div>
+      <div class="trade-pill">Excavation</div>
+      <div class="trade-pill">Masonry</div>
+      <div class="trade-pill">Welding</div>
+      <div class="trade-pill">Concrete</div>
+      <div class="trade-pill">General Contracting</div>
+      <div class="trade-pill">Handyman</div>
+      <div class="trade-pill">Siding</div>
+      <div class="trade-pill">Cleaning</div>
+      <div class="trade-pill">Crane Operation</div>
+      <div class="trade-pill">Windows &amp; Doors</div>
     </div>
 
     <p class="trades-more">Plus <strong>Electrical, Plumbing, HVAC, Roofing, Painting, Landscaping, Flooring</strong> and many more.</p>
@@ -1541,8 +1524,7 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-brand">
-      <img src="assets/tradehire-header-logo.png"
-           alt="TradeHire" />
+      <div class="footer-wordmark"><span class="trade">TRADE</span><span class="hire">HIRE</span></div>
       <p>The local skilled trades and home services directory connecting homeowners with verified tradespeople across Canada.</p>
     </div>
     <div class="footer-col">
