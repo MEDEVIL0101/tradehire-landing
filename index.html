@@ -1575,12 +1575,8 @@
      JAVASCRIPT
 ════════════════════════════════════════════════════ -->
 <script>
-  // ── Supabase config ─────────────────────────────────────────────────
-  // TODO: Add your Supabase anon key below.
-  // Project URL: https://sjwbjgpmrajtrguzaeyk.supabase.co
-  // Anon key: find it in Supabase Dashboard → Project Settings → API
-  const SUPABASE_URL  = 'https://sjwbjgpmrajtrguzaeyk.supabase.co';
-  const SUPABASE_ANON = 'sb_publishable_y9aclPbYJyHRI-XZfRPwgw_t7NWDyqK';
+  // ── Waitlist endpoint (Edge Function — no client key needed) ─────────
+  const WAITLIST_URL = 'https://sjwbjgpmrajtrguzaeyk.supabase.co/functions/v1/submit-waitlist';
 
   // ── Nav scroll behaviour ─────────────────────────────────────────────
   const nav = document.getElementById('nav');
@@ -1676,33 +1672,31 @@
       source:         'tradehireapp.com',
     };
 
-    // If anon key not configured, show a local success state
-    if (SUPABASE_ANON === 'YOUR_SUPABASE_ANON_KEY') {
-      console.log('[TradeHire Waitlist] Supabase not configured. Payload:', payload);
-      showSuccess();
-      return;
-    }
-
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/tradehire_preregistrations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'apikey':        SUPABASE_ANON,
-          'Authorization': `Bearer ${SUPABASE_ANON}`,
-          'Prefer':        'return=minimal',
-        },
-        body: JSON.stringify(payload),
+      const res  = await fetch(WAITLIST_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
       });
+      const data = await res.json().catch(() => ({}));
 
-      if (res.status === 409) {
-        // Email already registered — still show success
-        showSuccess();
+      if (res.status === 409 || data.error === 'duplicate_email') {
+        error.textContent = 'That email is already on the waitlist — you\'re all set!';
+        error.style.color   = 'var(--green)';
+        error.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Reserve My Spot';
+        return;
+      }
+      if (res.status === 429) {
+        error.textContent = 'Too many submissions from this device. Please try again later.';
+        error.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Reserve My Spot';
         return;
       }
       if (!res.ok) {
-        const body = await res.text();
-        throw new Error(body || `HTTP ${res.status}`);
+        throw new Error(data.error || `HTTP ${res.status}`);
       }
       showSuccess();
     } catch (err) {
