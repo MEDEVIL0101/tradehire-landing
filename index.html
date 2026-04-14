@@ -230,13 +230,12 @@
       50%       { box-shadow: 0 0 0 6px rgba(67,198,121,.1); }
     }
     .hero-logo {
-      height: 72px;
+      height: 120px;
       filter: brightness(0) invert(1);
-      margin: 0 auto 24px;
+      margin: 0 auto 20px;
     }
-    @media (max-width: 640px) {
-      .hero-logo { height: 52px; }
-    }
+    @media (max-width: 768px) { .hero-logo { height: 90px; } }
+    @media (max-width: 480px) { .hero-logo { height: 68px; } }
     .hero h1 {
       font-size: clamp(38px, 6vw, 66px);
       font-weight: 900;
@@ -293,13 +292,22 @@
       color: rgba(255,255,255,.6);
     }
     .hero-note a { color: rgba(255,255,255,.85); text-decoration: underline; }
-    .appstore-badge {
-      height: 44px;
-      border-radius: 10px;
-      opacity: .92;
-      transition: opacity .2s, transform .2s;
+    .appstore-badge-link {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: transform .2s, opacity .2s;
+      opacity: .9;
     }
-    .appstore-badge:hover { opacity: 1; transform: translateY(-2px); }
+    .appstore-badge-link:hover { opacity: 1; transform: translateY(-2px); }
+    .appstore-badge { height: 44px; width: auto; }
+    .appstore-badge-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      letter-spacing: .02em;
+    }
     .hero-platforms {
       margin-top: 48px;
       display: flex;
@@ -1044,8 +1052,14 @@
     </p>
 
     <div class="hero-platforms fade-in-up delay-5">
-      <a href="#waitlist">
-        <img class="appstore-badge" src="appstore.png" alt="Download on the App Store" />
+      <a href="#waitlist" class="appstore-badge-link">
+        <svg class="appstore-badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40">
+          <rect width="120" height="40" rx="6" fill="#000"/>
+          <path d="M24.768 20.3c-.028-3.204 2.617-4.762 2.737-4.838-1.492-2.18-3.812-2.479-4.633-2.507-1.958-.2-3.84 1.165-4.835 1.165-1.01 0-2.542-1.143-4.186-1.11-2.134.032-4.122 1.26-5.217 3.175-2.247 3.893-.572 9.629 1.588 12.782 1.083 1.546 2.35 3.273 4.012 3.211 1.621-.066 2.228-1.033 4.184-1.033 1.94 0 2.506 1.033 4.204.995 1.74-.028 2.837-1.554 3.887-3.113 1.246-1.78 1.754-3.528 1.776-3.618-.04-.015-3.39-1.295-3.517-5.109zm-3.293-9.398c.876-1.086 1.47-2.573 1.305-4.08-1.264.054-2.832.864-3.743 1.926-.808.934-1.527 2.46-1.34 3.91 1.418.107 2.876-.72 3.778-1.756z" fill="#fff"/>
+          <text x="38" y="14" fill="#fff" font-family="-apple-system,sans-serif" font-size="7" opacity=".72">Download on the</text>
+          <text x="38" y="27" fill="#fff" font-family="-apple-system,sans-serif" font-size="14" font-weight="600">App Store</text>
+        </svg>
+        <span class="appstore-badge-sub">Coming soon · Join the waitlist</span>
       </a>
     </div>
   </div>
