@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeHire — The Local Skilled Trades Directory</title>
+  <meta name="description" content="TradeHire connects homeowners with verified local tradespeople and suppliers. Post jobs, find trades, get hired." />
+  <meta property="og:title" content="TradeHire — The Local Skilled Trades Directory" />
+  <meta property="og:description" content="Find verified local tradespeople. Post jobs. Get hired. Coming soon to iOS." />
+  <meta property="og:image" content="assets/app-icon-1024.png" />
+  <link rel="icon" type="image/png" href="assets/app-icon-32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet" />
+  <!-- AOS — Animate On Scroll -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <style>
+    /* ─── Design Tokens ───────────────────────────────────────────────── */
+    :root {
+      --blue:        #3640AB;
+      --blue-dark:   #2a318a;
+      --blue-light:  #5C64D1;
+      --blue-glow:   rgba(54,64,171,.22);
+      --green:       #43C679;
+      --green-dark:  #2fa85a;
+      --amber:       #F59E0B;
+      --app-bg:      #F0F0F0;
+      --dark:        #0d1020;
+      --dark-card:   #161b35;
+      --dark-border: rgba(255,255,255,.08);
+      --dark-border-hover: rgba(255,255,255,.18);
+      --text:        #111827;
+      --text-soft:   #6b7280;
+      --text-xsoft:  #9ca3af;
+      --white:       #ffffff;
+      --shadow-sm:   0 2px 8px rgba(0,0,0,.06);
+      --shadow:      0 4px 24px rgba(0,0,0,.08);
+      --shadow-lg:   0 12px 48px rgba(0,0,0,.14);
+      --shadow-xl:   0 24px 80px rgba(0,0,0,.22);
+      --r:           14px;
+      --r-sm:        8px;
+      --r-lg:        20px;
+      --ease:        cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ─── Reset ───────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    /* ─── Navigation ──────────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 32px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background .35s var(--ease), box-shadow .35s var(--ease), backdrop-filter .35s;
+    }
+    .nav.scrolled {
+      background: rgba(13,16,32,.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 var(--dark-border);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo img.icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+    }
+    .nav-logo img.wordmark {
+      height: 22px;
+      filter: brightness(0) invert(1);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-link {
+      color: rgba(255,255,255,.75);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: var(--r-sm);
+      transition: color .2s;
+    }
+    .nav-link:hover { color: #fff; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform .18s var(--ease), box-shadow .18s var(--ease), background .18s;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-sm {
+      font-size: 14px;
+      padding: 9px 18px;
+      border-radius: var(--r-sm);
+    }
+    .btn-md {
+      font-size: 15px;
+      padding: 13px 26px;
+      border-radius: var(--r);
+    }
+    .btn-lg {
+      font-size: 16px;
+      padding: 16px 32px;
+      border-radius: var(--r);
+    }
+    .btn-blue {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(54,64,171,.35);
+    }
+    .btn-blue:hover {
+      background: var(--blue-dark);
+      box-shadow: 0 6px 24px rgba(54,64,171,.5);
+      transform: translateY(-1px);
+    }
+    .btn-green {
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(67,198,121,.35);
+    }
+    .btn-green:hover {
+      background: var(--green-dark);
+      box-shadow: 0 6px 24px rgba(67,198,121,.5);
+      transform: translateY(-1px);
+    }
+    .btn-outline-white {
+      background: transparent;
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,.5);
+    }
+    .btn-outline-white:hover {
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.8);
+    }
+
+    /* ─── Hero ────────────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 32px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/hero-bg.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      z-index: 0;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(54,64,171,.62);
+      z-index: 1;
+    }
+    /* subtle vignette at the bottom */
+    .hero-vignette {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 220px;
+      background: linear-gradient(to bottom, transparent, rgba(13,16,32,.85));
+      z-index: 2;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      max-width: 740px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.25);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      letter-spacing: .01em;
+    }
+    .hero-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(67,198,121,.3);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(67,198,121,.3); }
+      50%       { box-shadow: 0 0 0 6px rgba(67,198,121,.1); }
+    }
+    .hero-logo {
+      height: 36px;
+      filter: brightness(0) invert(1);
+      margin: 0 auto 20px;
+    }
+    .hero h1 {
+      font-size: clamp(38px, 6vw, 66px);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.08;
+      letter-spacing: -.03em;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--green);
+    }
+    .hero-sub {
+      font-size: clamp(16px, 2.2vw, 20px);
+      font-weight: 400;
+      color: rgba(255,255,255,.82);
+      line-height: 1.55;
+      margin-bottom: 40px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-form {
+      display: flex;
+      gap: 10px;
+      max-width: 480px;
+      margin: 0 auto 24px;
+    }
+    .hero-form input {
+      flex: 1;
+      height: 52px;
+      padding: 0 18px;
+      border-radius: var(--r-sm);
+      border: 1.5px solid rgba(255,255,255,.3);
+      background: rgba(255,255,255,.14);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    .hero-form input::placeholder { color: rgba(255,255,255,.55); }
+    .hero-form input:focus {
+      border-color: rgba(255,255,255,.7);
+      background: rgba(255,255,255,.2);
+    }
+    .hero-form .btn {
+      height: 52px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .hero-note {
+      font-size: 13px;
+      color: rgba(255,255,255,.6);
+    }
+    .hero-note a { color: rgba(255,255,255,.85); text-decoration: underline; }
+    .appstore-badge {
+      height: 44px;
+      border-radius: 10px;
+      opacity: .92;
+      transition: opacity .2s, transform .2s;
+    }
+    .appstore-badge:hover { opacity: 1; transform: translateY(-2px); }
+    .hero-platforms {
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,.5);
+    }
+    .hero-platforms .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 100px;
+      padding: 5px 14px 5px 9px;
+      color: rgba(255,255,255,.75);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .platform-badge svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,.4);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      animation: fadeInUp 1.5s ease forwards 1s;
+      opacity: 0;
+    }
+    .scroll-indicator .chevrons {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .scroll-indicator .chevron {
+      width: 14px;
+      height: 8px;
+      border-left: 2px solid rgba(255,255,255,.35);
+      border-bottom: 2px solid rgba(255,255,255,.35);
+      transform: rotate(-45deg);
+      animation: bounce 1.8s ease-in-out infinite;
+    }
+    .scroll-indicator .chevron:nth-child(2) { animation-delay: .15s; opacity: .6; }
+    .scroll-indicator .chevron:nth-child(3) { animation-delay: .3s;  opacity: .3; }
+    @keyframes bounce {
+      0%, 100% { transform: rotate(-45deg) translateY(0); }
+      50%       { transform: rotate(-45deg) translateY(4px); }
+    }
+
+    /* ─── Trust bar ───────────────────────────────────────────────────── */
+    .trust-bar {
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,.04);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,.55);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 28px;
+    }
+    .trust-item:not(:last-child) {
+      border-right: 1px solid rgba(255,255,255,.1);
+    }
+    .trust-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .trust-icon svg { width: 18px; height: 18px; }
+
+    /* ─── Section shared ──────────────────────────────────────────────── */
+    section { padding: 96px 32px; }
+    .container { max-width: 1140px; margin: 0 auto; }
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 14px;
+    }
+    h2.section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -.025em;
+      line-height: 1.12;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 18px;
+      color: var(--text-soft);
+      line-height: 1.6;
+      max-width: 580px;
+    }
+    .text-center { text-align: center; }
+    .text-center .section-sub { margin: 0 auto; }
+
+    /* ─── Audience cards ──────────────────────────────────────────────── */
+    .audience { background: var(--app-bg); }
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+    .audience-card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      padding: 36px 32px 40px;
+      box-shadow: var(--shadow);
+      transition: transform .25s var(--ease), box-shadow .25s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+    .audience-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .audience-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .audience-card.homeowner::before { background: var(--blue); }
+    .audience-card.trade::before     { background: var(--green); }
+    .audience-card.supplier::before  { background: var(--amber); }
+
+    .audience-icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .audience-card.homeowner .audience-icon-wrap { background: rgba(54,64,171,.1); }
+    .audience-card.trade     .audience-icon-wrap { background: rgba(67,198,121,.12); }
+    .audience-card.supplier  .audience-icon-wrap { background: rgba(245,158,11,.12); }
+    .audience-icon-wrap svg { width: 28px; height: 28px; }
+
+    .audience-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -.01em;
+    }
+    .audience-card .audience-type {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .homeowner .audience-type { color: var(--blue); }
+    .trade     .audience-type { color: var(--green-dark); }
+    .supplier  .audience-type { color: var(--amber); }
+
+    .audience-card p {
+      font-size: 15px;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .audience-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .audience-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .audience-list li::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 1px;
+      background-size: 10px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .homeowner .audience-list li::before {
+      background-color: rgba(54,64,171,.12);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%233640AB' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+    .trade .audience-list li::before {
+      background-color: rgba(67,198,121,.15);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%2343C679' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+    .supplier .audience-list li::before {
+      background-color: rgba(245,158,11,.15);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%23F59E0B' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+
+    /* ─── How It Works ────────────────────────────────────────────────── */
+    .how { background: var(--white); }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 56px;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: calc(16.66% + 20px);
+      right: calc(16.66% + 20px);
+      height: 2px;
+      background: linear-gradient(to right, var(--blue) 0%, var(--green) 100%);
+      opacity: .25;
+    }
+    .step {
+      text-align: center;
+      padding: 0 16px;
+    }
+    .step-number {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 6px 24px rgba(54,64,171,.3);
+    }
+    .step h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -.01em;
+    }
+    .step p {
+      font-size: 15px;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    /* ─── Features ────────────────────────────────────────────────────── */
+    .features { background: var(--dark); }
+    .features .section-label { color: var(--green); }
+    .features h2.section-title { color: var(--white); }
+    .features .section-sub { color: rgba(255,255,255,.55); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 56px;
+      border: 2px solid var(--dark-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: var(--dark-border);
+    }
+    .feature-card {
+      background: var(--dark-card);
+      padding: 32px 28px;
+      transition: background .2s;
+    }
+    .feature-card:hover { background: #1e2540; }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      font-size: 22px;
+    }
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: -.01em;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: rgba(255,255,255,.5);
+      line-height: 1.65;
+    }
+    .feature-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 14px;
+    }
+    .tag-blue   { background: rgba(54,64,171,.2);   color: #8b95e8; }
+    .tag-green  { background: rgba(67,198,121,.15);  color: #5ed98a; }
+    .tag-amber  { background: rgba(245,158,11,.15);  color: #fbb840; }
+    .tag-pro    { background: rgba(212,175,55,.15);  color: #d4af37; }
+
+    /* ─── App Preview ─────────────────────────────────────────────────── */
+    .preview {
+      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue) 40%, var(--blue-light) 100%);
+      overflow: hidden;
+      padding: 96px 32px;
+    }
+    .preview-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 64px;
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+    .preview-text .section-label { color: rgba(255,255,255,.6); }
+    .preview-text h2 { color: var(--white); }
+    .preview-text .section-sub { color: rgba(255,255,255,.7); margin-top: 16px; }
+    .preview-cta { margin-top: 40px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .preview-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .app-icon-hero {
+      width: 200px;
+      height: 200px;
+      border-radius: 44px;
+      box-shadow: 0 40px 100px rgba(0,0,0,.4);
+      position: relative;
+      z-index: 2;
+    }
+    .app-icon-glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      filter: blur(60px);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+    }
+
+    /* ─── Trades grid ─────────────────────────────────────────────────── */
+    .trades { background: var(--app-bg); }
+    .trades-intro { text-align: center; margin-bottom: 48px; }
+    .trades-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto 16px;
+    }
+    .trade-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      border-radius: var(--r);
+      padding: 20px 12px;
+      box-shadow: var(--shadow-sm);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+      transition: transform .2s var(--ease), box-shadow .2s;
+    }
+    .trade-pill:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+    .trade-pill img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+    .trades-more {
+      text-align: center;
+      margin-top: 24px;
+      color: var(--text-soft);
+      font-size: 14px;
+    }
+    .trades-more strong { color: var(--blue); }
+
+    /* ─── Waitlist ────────────────────────────────────────────────────── */
+    .waitlist { background: var(--white); }
+    .waitlist-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .waitlist-left .section-sub { margin-top: 16px; margin-bottom: 32px; }
+    .waitlist-benefit {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .wb-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-sm);
+      background: rgba(54,64,171,.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+    .wb-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .wb-text p  { font-size: 14px; color: var(--text-soft); line-height: 1.5; }
+
+    /* ─── Waitlist Form ───────────────────────────────────────────────── */
+    .wl-form {
+      background: var(--white);
+      border: 2px solid var(--app-bg);
+      border-radius: var(--r-lg);
+      padding: 40px 36px;
+      box-shadow: var(--shadow-lg);
+    }
+    .wl-form h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -.02em;
+    }
+    .wl-form .wl-form-sub {
+      font-size: 14px;
+      color: var(--text-soft);
+      margin-bottom: 28px;
+    }
+    /* Type selector */
+    .type-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .type-btn {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 13px 8px;
+      border-radius: var(--r-sm);
+      border: 2px solid var(--app-bg);
+      background: var(--white);
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .2s, color .2s, background .2s;
+      text-align: center;
+    }
+    .type-btn .type-emoji { font-size: 22px; line-height: 1; }
+    .type-btn:hover { border-color: #d1d5db; color: var(--text); }
+    .type-btn.active-homeowner { border-color: var(--blue); color: var(--blue); background: rgba(54,64,171,.05); }
+    .type-btn.active-trade     { border-color: var(--green); color: var(--green-dark); background: rgba(67,198,121,.06); }
+    .type-btn.active-supplier  { border-color: var(--amber); color: #b45309; background: rgba(245,158,11,.06); }
+
+    /* Form fields */
+    .field-group { margin-bottom: 16px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 7px;
+    }
+    .field-label .optional {
+      font-weight: 400;
+      color: var(--text-xsoft);
+      margin-left: 4px;
+    }
+    .field-input {
+      width: 100%;
+      height: 46px;
+      padding: 0 14px;
+      border-radius: var(--r-sm);
+      border: 2px solid #e5e7eb;
+      background: var(--white);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-glow);
+    }
+    .field-input::placeholder { color: #9ca3af; }
+    select.field-input { cursor: pointer; }
+    textarea.field-input {
+      height: 90px;
+      padding: 12px 14px;
+      resize: vertical;
+    }
+    .field-hidden { display: none; }
+
+    .wl-submit {
+      width: 100%;
+      height: 52px;
+      border-radius: var(--r-sm);
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    .wl-error {
+      font-size: 13px;
+      color: #ef4444;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* Success state */
+    .wl-success {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .wl-success .success-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(67,198,121,.12);
+      border: 2px solid rgba(67,198,121,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+    }
+    .wl-success h4 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -.02em;
+    }
+    .wl-success p { font-size: 15px; color: var(--text-soft); line-height: 1.6; }
+
+    /* ─── Footer ──────────────────────────────────────────────────────── */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid var(--dark-border);
+      padding: 56px 32px 40px;
+    }
+    .footer-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+    }
+    .footer-brand img {
+      height: 22px;
+      filter: brightness(0) invert(1);
+      filter: brightness(0) invert(1);
+      margin-bottom: 16px;
+    }
+    .footer-brand p {
+      font-size: 14px;
+      color: rgba(255,255,255,.45);
+      line-height: 1.65;
+      max-width: 240px;
+    }
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,.9);
+      margin-bottom: 16px;
+      letter-spacing: .02em;
+    }
+    .footer-col a {
+      display: block;
+      font-size: 14px;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 10px;
+      transition: color .2s;
+    }
+    .footer-col a:hover { color: rgba(255,255,255,.85); }
+    .footer-bottom {
+      max-width: 1140px;
+      margin: 40px auto 0;
+      padding-top: 28px;
+      border-top: 1px solid var(--dark-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(255,255,255,.3);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bottom a { color: rgba(255,255,255,.4); }
+    .footer-bottom a:hover { color: rgba(255,255,255,.7); }
+
+    /* ─── Animations ──────────────────────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up {
+      animation: fadeInUp .7s var(--ease) forwards;
+      opacity: 0;
+    }
+    .delay-1 { animation-delay: .1s; }
+    .delay-2 { animation-delay: .2s; }
+    .delay-3 { animation-delay: .3s; }
+    .delay-4 { animation-delay: .45s; }
+    .delay-5 { animation-delay: .6s; }
+
+    /* ─── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      section { padding: 72px 24px; }
+      .audience-grid { grid-template-columns: 1fr; gap: 16px; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid { grid-template-columns: 1fr; gap: 32px; }
+      .steps-grid::before { display: none; }
+      .trades-grid { grid-template-columns: repeat(4, 1fr); }
+      .preview-inner { grid-template-columns: 1fr; text-align: center; }
+      .preview-cta { justify-content: center; }
+      .preview-visual { margin-top: 40px; }
+      .waitlist-inner { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav { padding: 0 20px; }
+      .nav-link { display: none; }
+      .hero { padding: 100px 20px 72px; }
+      .hero-form { flex-direction: column; }
+      .hero-form input { width: 100%; }
+      section { padding: 60px 20px; }
+      .trust-bar { padding: 16px 20px; }
+      .trust-item { padding: 8px 16px; font-size: 12px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .trades-grid { grid-template-columns: repeat(3, 1fr); }
+      .wl-form { padding: 28px 24px; }
+      .field-row { grid-template-columns: 1fr; }
+      .type-selector { grid-template-columns: repeat(3, 1fr); }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <a class="nav-logo" href="#">
+    <img class="icon"
+         src="assets/app-icon-180.png"
+         alt="TradeHire" />
+    <img class="wordmark"
+         src="assets/tradehire-header-logo.png"
+         alt="TradeHire" />
+  </a>
+  <div class="nav-actions">
+    <a class="nav-link" href="#how-it-works">How it works</a>
+    <a class="nav-link" href="#features">Features</a>
+    <a class="btn btn-sm btn-blue" href="#waitlist">Join the Waitlist</a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-vignette"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge fade-in-up delay-1">
+      <span class="dot"></span>
+      Now accepting early registrations
+    </div>
+
+    <img class="hero-logo fade-in-up delay-2"
+         src="assets/tradehire-header-logo.png"
+         alt="TradeHire" />
+
+    <h1 class="fade-in-up delay-2">
+      Find the right trades,<br /><em>every time.</em>
+    </h1>
+
+    <p class="hero-sub fade-in-up delay-3">
+      The local skilled trades and home services directory — connecting homeowners with verified tradespeople, and tradespeople with the work they deserve.
+    </p>
+
+    <form class="hero-form fade-in-up delay-4" id="hero-form" onsubmit="heroFormSubmit(event)">
+      <input type="email" name="email" placeholder="Enter your email address" required autocomplete="email" />
+      <button type="submit" class="btn btn-green btn-md">Get Early Access</button>
+    </form>
+
+    <p class="hero-note fade-in-up delay-4">
+      Free to sign up. No spam, ever. &nbsp;·&nbsp;
+      <a href="#waitlist">Tell us more about you →</a>
+    </p>
+
+    <div class="hero-platforms fade-in-up delay-5">
+      <a href="#waitlist">
+        <img class="appstore-badge" src="appstore.png" alt="Download on the App Store" />
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="chevrons">
+      <div class="chevron"></div>
+      <div class="chevron"></div>
+      <div class="chevron"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     TRUST BAR
+════════════════════════════════════════════════════ -->
+<div class="trust-bar">
+  <div class="trust-item">
+    <div class="trust-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    AI-verified businesses
+  </div>
+  <div class="trust-item">
+    <div class="trust-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    Local search by postal code
+  </div>
+  <div class="trust-item">
+    <div class="trust-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    Secure in-app messaging
+  </div>
+  <div class="trust-item">
+    <div class="trust-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    Verified reviews
+  </div>
+  <div class="trust-item">
+    <div class="trust-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    Insurance & police check verified
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     AUDIENCE
+════════════════════════════════════════════════════ -->
+<section class="audience" id="who-its-for">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <span class="section-label">Who it's for</span>
+      <h2 class="section-title">Built for everyone in the trades ecosystem</h2>
+      <p class="section-sub">Whether you're a homeowner looking for reliable help, a tradesperson growing your business, or a supplier serving the industry — TradeHire works for you.</p>
+    </div>
+
+    <div class="audience-grid">
+      <!-- Homeowners -->
+      <div class="audience-card homeowner">
+        <div class="audience-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3640AB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="audience-type">Homeowners</div>
+        <h3>Find trusted tradespeople near you</h3>
+        <p>Post a job or browse verified local tradespeople. Read real reviews, compare profiles, and connect directly — no middlemen, no markups.</p>
+        <ul class="audience-list">
+          <li>Post jobs and receive responses from local trades</li>
+          <li>Browse verified business profiles with reviews</li>
+          <li>Message tradespeople directly in-app</li>
+          <li>See insurance and police check status</li>
+          <li>Find suppliers for materials and rentals</li>
+        </ul>
+      </div>
+
+      <!-- Tradespeople -->
+      <div class="audience-card trade">
+        <div class="audience-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#43C679" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div class="audience-type">Tradespeople & Contractors</div>
+        <h3>Grow your trade business on your terms</h3>
+        <p>Create a professional business profile, earn your Verified Badge, and get found by homeowners actively looking for your trade in your service area.</p>
+        <ul class="audience-list">
+          <li>Create a verified business profile in minutes</li>
+          <li>AI-powered profile optimizer to stand out</li>
+          <li>Earn a Verified Badge with insurance + police check</li>
+          <li>Respond to job postings and direct messages</li>
+          <li>Post portfolio photos and showcase your work</li>
+          <li>Premium search ranking boost</li>
+        </ul>
+      </div>
+
+      <!-- Suppliers -->
+      <div class="audience-card supplier">
+        <div class="audience-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/><rect x="1" y="3" width="22" height="6" rx="1"/></svg>
+        </div>
+        <div class="audience-type">Suppliers & Stores</div>
+        <h3>Reach tradespeople and homeowners in your area</h3>
+        <p>List your supply store, lumber yard, hardware shop, or rental service where the people who need you are already looking. Grow your local reach without advertising spend.</p>
+        <ul class="audience-list">
+          <li>Create a verified supplier store profile</li>
+          <li>List materials, tools, equipment and rentals</li>
+          <li>Multiple location support with hours</li>
+          <li>Connect directly with tradespeople in your area</li>
+          <li>Product showcase feed with photos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════════════ -->
+<section class="how" id="how-it-works">
+  <div class="container">
+    <div class="text-center" data-aos="fade-up">
+      <span class="section-label">How it works</span>
+      <h2 class="section-title">Up and running in minutes</h2>
+      <p class="section-sub">Whether you're posting a job or building a business profile, TradeHire is designed to get you connected fast.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Create your account</h3>
+        <p>Sign up as a homeowner, tradesperson, or supplier. Your account type determines what you can do — post jobs, build a business profile, or list your store.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Build your profile or post a job</h3>
+        <p>Homeowners describe what they need. Tradespeople set up a detailed business profile complete with services, location, portfolio photos, and trade licences. AI helps you stand out.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Connect and get to work</h3>
+        <p>Browse verified profiles, send direct messages, respond to job postings, and leave reviews when the work is done. Everything in one place.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════════════ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label">Platform Features</span>
+      <h2 class="section-title">Everything you need to find — or grow — a trades business</h2>
+      <p class="section-sub">TradeHire is built from the ground up for the skilled trades industry, not adapted from a generic marketplace.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Profile Optimizer</h3>
+        <p>Premium tradespeople get AI-powered suggestions to complete their profile, improve their bio, and maximize visibility in local search results.</p>
+        <span class="feature-tag tag-pro">Pro Feature</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3>Verified Badge</h3>
+        <p>Upload proof of insurance and a police background check. Our AI pipeline verifies both automatically — high confidence approvals happen instantly, no waiting for admin review.</p>
+        <span class="feature-tag tag-green">AI-Powered</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Direct Messaging</h3>
+        <p>Secure in-app conversations between homeowners, tradespeople, and suppliers. Share photos, voice messages, and business cards — all within TradeHire.</p>
+        <span class="feature-tag tag-blue">Built-in</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Job Postings Board</h3>
+        <p>Homeowners post jobs with detailed descriptions, timelines, and budgets. Tradespeople in the relevant category and service area see it immediately and can respond directly.</p>
+        <span class="feature-tag tag-blue">Free</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⭐</div>
+        <h3>Reviews & Ratings</h3>
+        <p>Build your reputation with verified reviews from real clients. Ratings are public on your profile — quality work shows on your record.</p>
+        <span class="feature-tag tag-blue">Verified</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <h3>Local Search by Radius</h3>
+        <p>Search by postal code and service radius. Homeowners find trades in their area; tradespeople set exactly how far they're willing to travel for work.</p>
+        <span class="feature-tag tag-blue">GPS-Powered</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏗️</div>
+        <h3>Portfolio Feed</h3>
+        <p>Premium tradespeople can post photos and carousels of completed work directly to their profile — a visual portfolio that converts browsers into clients.</p>
+        <span class="feature-tag tag-pro">Pro Feature</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📢</div>
+        <h3>Now Hiring Flag</h3>
+        <p>Actively looking to grow your team? Toggle on the "Now Hiring" flag on your business profile so candidates can find you in search results and on your profile page.</p>
+        <span class="feature-tag tag-green">Pro Feature</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏪</div>
+        <h3>Supplier Marketplace</h3>
+        <p>Browse local suppliers for lumber, hardware, tools, equipment rentals, and building materials. Supplier profiles include multiple locations, hours, and product showcases.</p>
+        <span class="feature-tag tag-amber">Suppliers</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     APP PREVIEW
+════════════════════════════════════════════════════ -->
+<section class="preview">
+  <div class="preview-inner">
+    <div class="preview-text">
+      <span class="section-label">Coming to iPhone</span>
+      <h2 class="section-title">Built as a native iOS app from day one</h2>
+      <p class="section-sub">TradeHire isn't a web app wrapped in a frame. It's built natively for iPhone — fast, reliable, and designed to feel right at home on your device. Push notifications, camera access for documents, GPS-powered local search, and real-time messaging.</p>
+      <div class="preview-cta">
+        <a href="#waitlist" class="btn btn-outline-white btn-md">Join the Waitlist</a>
+      </div>
+    </div>
+    <div class="preview-visual">
+      <div class="app-icon-glow"></div>
+      <img class="app-icon-hero"
+           src="assets/app-icon-1024.png"
+           alt="TradeHire App" />
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     TRADES CATEGORIES
+════════════════════════════════════════════════════ -->
+<section class="trades">
+  <div class="container">
+    <div class="trades-intro">
+      <span class="section-label" data-aos="fade-up">Trade Categories</span>
+      <h2 class="section-title" data-aos="fade-up" data-aos-delay="60">Across all skilled trades and home services</h2>
+      <p class="section-sub" style="margin:12px auto 0">From licensed electrical and plumbing to handyman services and general contracting — TradeHire covers the full spectrum of trades.</p>
+    </div>
+
+    <div class="trades-grid">
+      <div class="trade-pill">
+        <img src="assets/icons/excavation.png" alt="Excavation" />
+        Excavation
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/masonry.png" alt="Masonry" />
+        Masonry
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/welding.png" alt="Welding" />
+        Welding
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/concrete.png" alt="Concrete" />
+        Concrete
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/general.png" alt="General Contractors" />
+        General Contracting
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/handyman.png" alt="Handyman" />
+        Handyman
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/siding.png" alt="Siding" />
+        Siding
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/cleaning.png" alt="Cleaning" />
+        Cleaning
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/crane.png" alt="Crane Operation" />
+        Crane Operation
+      </div>
+      <div class="trade-pill">
+        <img src="assets/icons/windows.png" alt="Windows" />
+        Windows
+      </div>
+    </div>
+
+    <p class="trades-more">Plus <strong>Electrical, Plumbing, HVAC, Roofing, Painting, Landscaping, Flooring</strong> and many more.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     WAITLIST
+════════════════════════════════════════════════════ -->
+<section class="waitlist" id="waitlist">
+  <div class="container">
+    <div class="waitlist-inner">
+
+      <!-- Left: copy -->
+      <div class="waitlist-left">
+        <span class="section-label">Early Access</span>
+        <h2 class="section-title">Be first when we launch</h2>
+        <p class="section-sub">TradeHire is launching soon. Sign up now to get early access, be first in your area, and help shape how the platform works for your trade.</p>
+
+        <div style="margin-top:36px;">
+          <div class="waitlist-benefit">
+            <div class="wb-icon">🚀</div>
+            <div class="wb-text">
+              <h4>Early access priority</h4>
+              <p>Be among the first verified profiles in your area before the general public launch.</p>
+            </div>
+          </div>
+          <div class="waitlist-benefit">
+            <div class="wb-icon">🎁</div>
+            <div class="wb-text">
+              <h4>Launch perks for early registrants</h4>
+              <p>Early signups receive exclusive launch benefits — details shared at registration confirmation.</p>
+            </div>
+          </div>
+          <div class="waitlist-benefit">
+            <div class="wb-icon">🗺️</div>
+            <div class="wb-text">
+              <h4>Shape your local market</h4>
+              <p>The tradespeople and suppliers who register first establish presence in their area before anyone else.</p>
+            </div>
+          </div>
+          <div class="waitlist-benefit">
+            <div class="wb-icon">📱</div>
+            <div class="wb-text">
+              <h4>Instant notification at launch</h4>
+              <p>You'll be notified by email the moment the app is available on the App Store.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: form -->
+      <div class="wl-form" id="wl-form-container">
+        <h3>Reserve your spot</h3>
+        <p class="wl-form-sub">Takes less than 2 minutes. No credit card required.</p>
+
+        <!-- User type selector -->
+        <div class="type-selector">
+          <button type="button" class="type-btn" data-type="homeowner" onclick="selectType('homeowner', this)">
+            <span class="type-emoji">🏠</span>
+            Homeowner
+          </button>
+          <button type="button" class="type-btn" data-type="trade" onclick="selectType('trade', this)">
+            <span class="type-emoji">🔧</span>
+            Tradesperson
+          </button>
+          <button type="button" class="type-btn" data-type="supplier" onclick="selectType('supplier', this)">
+            <span class="type-emoji">🏪</span>
+            Supplier
+          </button>
+        </div>
+
+        <form id="waitlist-form" onsubmit="submitWaitlist(event)">
+          <!-- Common fields -->
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="wl-first-name">First Name</label>
+              <input class="field-input" type="text" id="wl-first-name" name="first_name" placeholder="Jane" required autocomplete="given-name" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="wl-last-name">Last Name</label>
+              <input class="field-input" type="text" id="wl-last-name" name="last_name" placeholder="Smith" required autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="wl-email">Email Address</label>
+            <input class="field-input" type="email" id="wl-email" name="email" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+
+          <!-- Trade / Supplier fields (shown conditionally) -->
+          <div class="field-group field-hidden" id="field-business-name">
+            <label class="field-label" for="wl-business-name" id="label-business-name">Business Name</label>
+            <input class="field-input" type="text" id="wl-business-name" name="business_name" placeholder="Your business name" />
+          </div>
+
+          <div class="field-group field-hidden" id="field-trade-category">
+            <label class="field-label" for="wl-trade-category" id="label-trade-category">Trade or Service Category</label>
+            <select class="field-input" id="wl-trade-category" name="trade_category">
+              <option value="" disabled selected>Select your trade or service</option>
+              <optgroup label="Licensed Trades">
+                <option>Electrical</option>
+                <option>Plumbing</option>
+                <option>HVAC</option>
+                <option>General Contracting</option>
+                <option>Engineering</option>
+                <option>Architecture</option>
+                <option>Surveying</option>
+                <option>Elevator Installation</option>
+                <option>Crane Operation</option>
+                <option>Excavation</option>
+              </optgroup>
+              <optgroup label="Trades & Services">
+                <option>Roofing</option>
+                <option>Masonry &amp; Brickwork</option>
+                <option>Concrete &amp; Foundations</option>
+                <option>Welding &amp; Fabrication</option>
+                <option>Painting &amp; Finishing</option>
+                <option>Flooring</option>
+                <option>Siding &amp; Cladding</option>
+                <option>Windows &amp; Doors</option>
+                <option>Landscaping &amp; Hardscaping</option>
+                <option>Insulation</option>
+                <option>Drywall</option>
+                <option>Carpentry &amp; Millwork</option>
+                <option>Cabinetry &amp; Countertops</option>
+                <option>Tile &amp; Stone</option>
+                <option>Handyman Services</option>
+                <option>Cleaning Services</option>
+                <option>Pest Control</option>
+                <option>Moving Services</option>
+                <option>Pool &amp; Spa</option>
+              </optgroup>
+              <optgroup label="Supply Stores" id="supplier-options" style="display:none">
+                <option>Lumber &amp; Building Materials</option>
+                <option>Hardware &amp; Tools</option>
+                <option>Electrical Supply</option>
+                <option>Plumbing Supply</option>
+                <option>Equipment Rental</option>
+                <option>Paint &amp; Coatings</option>
+                <option>Flooring &amp; Tile Supply</option>
+                <option>Other Supply Store</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="field-group field-hidden" id="field-bio">
+            <label class="field-label" for="wl-bio">
+              Tell us about your business <span class="optional">(optional)</span>
+            </label>
+            <textarea class="field-input" id="wl-bio" name="bio" placeholder="Brief description of your business, services, or what you're looking for..."></textarea>
+          </div>
+
+          <p class="wl-error" id="wl-error"></p>
+
+          <button type="submit" class="btn btn-blue wl-submit" id="wl-submit">
+            Reserve My Spot
+          </button>
+
+          <p style="font-size:12px; color:var(--text-xsoft); margin-top:12px; line-height:1.5;">
+            By signing up you agree to receive launch updates from TradeHire. Your information is never shared or sold.
+          </p>
+        </form>
+
+        <!-- Success state -->
+        <div class="wl-success" id="wl-success">
+          <div class="success-icon">✓</div>
+          <h4>You're on the list!</h4>
+          <p>We'll be in touch when TradeHire launches in your area. Keep an eye on your inbox — we'll send launch details and your early access instructions there.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="assets/tradehire-header-logo.png"
+           alt="TradeHire" />
+      <p>The local skilled trades and home services directory connecting homeowners with verified tradespeople across Canada.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <a href="#who-its-for">For Homeowners</a>
+      <a href="#who-its-for">For Tradespeople</a>
+      <a href="#who-its-for">For Suppliers</a>
+      <a href="#features">Features</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About</a>
+      <a href="#">Blog</a>
+      <a href="#">Contact</a>
+      <a href="#">Early Signups</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 TradeHire. All rights reserved. Built for Canadian tradespeople.</span>
+    <span>
+      <a href="#">Privacy</a> &nbsp;·&nbsp;
+      <a href="#">Terms</a> &nbsp;·&nbsp;
+      <a href="mailto:hello@tradehireapp.com">hello@tradehireapp.com</a>
+    </span>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════
+     THIRD-PARTY PLUGINS
+════════════════════════════════════════════════════ -->
+<!-- AOS — Animate On Scroll -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<!-- GSAP + ScrollTrigger (parallax & advanced animations) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>gsap.registerPlugin(ScrollTrigger);</script>
+
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
+<script>
+  // ── Supabase config ─────────────────────────────────────────────────
+  // TODO: Add your Supabase anon key below.
+  // Project URL: https://sjwbjgpmrajtrguzaeyk.supabase.co
+  // Anon key: find it in Supabase Dashboard → Project Settings → API
+  const SUPABASE_URL  = 'https://sjwbjgpmrajtrguzaeyk.supabase.co';
+  const SUPABASE_ANON = 'sb_publishable_y9aclPbYJyHRI-XZfRPwgw_t7NWDyqK';
+
+  // ── Nav scroll behaviour ─────────────────────────────────────────────
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+  // Always scrolled on sub-sections if nav appears without hero
+  if (document.documentElement.scrollTop > 40) nav.classList.add('scrolled');
+
+  // ── User type state ──────────────────────────────────────────────────
+  let selectedType = null;
+
+  function selectType(type, btn) {
+    // Clear all active states
+    document.querySelectorAll('.type-btn').forEach(b => {
+      b.className = 'type-btn';
+    });
+    btn.classList.add('active-' + type);
+    selectedType = type;
+
+    const showBusiness  = type === 'trade' || type === 'supplier';
+    const showCategory  = type === 'trade' || type === 'supplier';
+    const showBio       = type === 'trade' || type === 'supplier';
+
+    toggle('field-business-name', showBusiness);
+    toggle('field-trade-category', showCategory);
+    toggle('field-bio', showBio);
+
+    // Update labels
+    if (type === 'supplier') {
+      document.getElementById('label-business-name').textContent = 'Store / Business Name';
+      document.getElementById('label-trade-category').textContent = 'Type of Supply Store';
+      document.getElementById('supplier-options').style.display = '';
+    } else if (type === 'trade') {
+      document.getElementById('label-business-name').textContent = 'Business Name';
+      document.getElementById('label-trade-category').textContent = 'Trade or Service Category';
+      document.getElementById('supplier-options').style.display = 'none';
+    }
+
+    if (showBusiness) {
+      document.getElementById('wl-business-name').required = true;
+      document.getElementById('wl-trade-category').required = true;
+    } else {
+      document.getElementById('wl-business-name').required = false;
+      document.getElementById('wl-trade-category').required = false;
+    }
+  }
+
+  function toggle(id, show) {
+    document.getElementById(id).classList.toggle('field-hidden', !show);
+  }
+
+  // ── Hero quick-form ──────────────────────────────────────────────────
+  function heroFormSubmit(e) {
+    e.preventDefault();
+    const email = e.target.email.value.trim();
+    if (!email) return;
+    // Pre-fill the waitlist form and scroll to it
+    document.getElementById('wl-email').value = email;
+    document.querySelector('#waitlist').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => document.getElementById('wl-first-name').focus(), 600);
+  }
+
+  // ── Waitlist form submission ─────────────────────────────────────────
+  async function submitWaitlist(e) {
+    e.preventDefault();
+
+    const btn   = document.getElementById('wl-submit');
+    const error = document.getElementById('wl-error');
+    error.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    const firstName   = document.getElementById('wl-first-name').value.trim();
+    const lastName    = document.getElementById('wl-last-name').value.trim();
+    const email       = document.getElementById('wl-email').value.trim();
+    const businessRaw = document.getElementById('wl-business-name').value.trim();
+    const category    = document.getElementById('wl-trade-category').value || null;
+    const bio         = document.getElementById('wl-bio').value.trim() || null;
+
+    // Determine business_name: for homeowners use full name
+    const businessName = selectedType === 'homeowner' || !businessRaw
+      ? `${firstName} ${lastName}`
+      : businessRaw;
+
+    const tradeCategory = selectedType === 'homeowner' ? 'homeowner' : (category || null);
+
+    const payload = {
+      business_name:  businessName,
+      email:          email,
+      trade_category: tradeCategory,
+      bio:            bio,
+      source:         'tradehireapp.com',
+    };
+
+    // If anon key not configured, show a local success state
+    if (SUPABASE_ANON === 'YOUR_SUPABASE_ANON_KEY') {
+      console.log('[TradeHire Waitlist] Supabase not configured. Payload:', payload);
+      showSuccess();
+      return;
+    }
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/tradehire_preregistrations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'apikey':        SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Prefer':        'return=minimal',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 409) {
+        // Email already registered — still show success
+        showSuccess();
+        return;
+      }
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(body || `HTTP ${res.status}`);
+      }
+      showSuccess();
+    } catch (err) {
+      console.error('[TradeHire Waitlist] Error:', err);
+      error.textContent = 'Something went wrong — please try again or email us at hello@tradehireapp.com';
+      error.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Reserve My Spot';
+    }
+  }
+
+  function showSuccess() {
+    document.getElementById('waitlist-form').style.display = 'none';
+    document.querySelector('.type-selector').style.display = 'none';
+    document.querySelector('.wl-form h3').style.display = 'none';
+    document.querySelector('.wl-form-sub').style.display = 'none';
+    document.getElementById('wl-success').style.display = 'block';
+  }
+
+  // ── AOS init ─────────────────────────────────────────────────────────
+  AOS.init({
+    duration: 520,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 40,
+  });
+
+  // ── GSAP hero parallax ───────────────────────────────────────────────
+  gsap.to('.hero-bg', {
+    yPercent: 20,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true,
+    },
+  });
+</script>
+
+
+</body>
+</html>
