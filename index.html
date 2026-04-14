@@ -230,9 +230,12 @@
       50%       { box-shadow: 0 0 0 6px rgba(67,198,121,.1); }
     }
     .hero-logo {
-      height: 36px;
+      height: 72px;
       filter: brightness(0) invert(1);
-      margin: 0 auto 20px;
+      margin: 0 auto 24px;
+    }
+    @media (max-width: 640px) {
+      .hero-logo { height: 52px; }
     }
     .hero h1 {
       font-size: clamp(38px, 6vw, 66px);
